@@ -40,7 +40,7 @@ spec:
       #   logrotatetest: "true"
       containers:
       - name: logrotate
-        image: "harbor.ffnrct.com/library/logrotater-stakater:3.13.0"
+        image: "kenotsolutions/logrotater-stakater:3.13.0"
         command: ["/bin/sh","-c"]
         args: ["echo \"${CRON_SCHEDULE}\"  \"/usr/sbin/logrotate -v /etc/logrotate.conf\"  >> /etc/crontabs/root  &&  crond -f -l 0 -L /var/log/crontab"]
         securityContext:
