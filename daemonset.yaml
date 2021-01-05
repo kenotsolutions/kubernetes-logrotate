@@ -1,0 +1,63 @@
+---
+# Source: logrotate/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    configmap.reloader.stakater.com/reload: logrotate
+  name: logrotate
+  namespace: kube-logrotate
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: logrotate
+      group: com.stakater.platform
+      provider: stakater
+      version: "3.13.0"
+      chart: "logrotate-1.0.19"
+      release: "ffn-logrotate"
+      heritage: "Helm"
+  template:
+    metadata:
+      labels:
+        app: logrotate
+        group: com.stakater.platform
+        provider: stakater
+        version: "3.13.0"
+        chart: "logrotate-1.0.19"
+        release: "ffn-logrotate"
+        heritage: "Helm"
+      name: logrotate
+    spec:
+      tolerations:
+      # this toleration is to have the daemonset runnable on master nodes
+      # remove it if your masters can't run pods
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      # nodeSelector:
+      #   logrotatetest: "true"
+      containers:
+      - name: logrotate
+        image: "harbor.ffnrct.com/library/logrotater-stakater:3.13.0"
+        command: ["/bin/sh","-c"]
+        args: ["echo \"${CRON_SCHEDULE}\"  \"/usr/sbin/logrotate -v /etc/logrotate.conf\"  >> /etc/crontabs/root  &&  crond -f -l 0 -L /var/log/crontab"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+         - name: containers
+           mountPath: /var/lib/docker/containers
+         - name: logrotate-config
+           mountPath: /etc/logrotate.d/k8s-rotator.conf
+           subPath: k8s-rotator.conf
+        env:
+          - name: CRON_SCHEDULE
+            value: "0 5 * * *"
+      volumes:
+         - hostPath:
+             path: /var/lib/docker/containers
+           name: containers
+         - configMap:
+            name: logrotate
+           name: logrotate-config
