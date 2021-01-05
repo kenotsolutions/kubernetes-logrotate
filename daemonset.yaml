@@ -17,7 +17,7 @@ spec:
       provider: stakater
       version: "3.13.0"
       chart: "logrotate-1.0.19"
-      release: "ffn-logrotate"
+      release: "k8s-logrotate"
       heritage: "Helm"
   template:
     metadata:
@@ -27,7 +27,7 @@ spec:
         provider: stakater
         version: "3.13.0"
         chart: "logrotate-1.0.19"
-        release: "ffn-logrotate"
+        release: "k8s-logrotate"
         heritage: "Helm"
       name: logrotate
     spec:
